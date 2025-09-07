@@ -1,0 +1,9 @@
+on key:a
+
+sleep 1000
+event key:q
+sleep 1000
+event key:a
+sleep 1000
+event key:z
+sleep 1000

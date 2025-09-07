@@ -1,0 +1,14 @@
+on mouse:5
+
+event mouse:1 down
+sleep 10
+event mouse:1 up
+sleep 125
+event key:r down
+event key:delete down
+event key:rshift down
+sleep 10
+event key:r up
+event key:delete up
+event key:rshift up
+sleep 10

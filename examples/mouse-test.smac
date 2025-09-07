@@ -1,0 +1,10 @@
+on key:a
+
+sleep 1000
+event mouse:1
+sleep 1000
+event mouse:2
+sleep 1000
+event mouse:3
+sleep 1000
+event mouse:4
