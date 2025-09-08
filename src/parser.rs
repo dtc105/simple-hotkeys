@@ -13,6 +13,7 @@ pub enum Trigger {
 }
 
 pub struct Script {
+    pub is_repeating: bool,
     pub trigger: Trigger,
     pub actions: Vec<Action>,
 }
@@ -211,6 +212,7 @@ fn parse_direction(dir_str: &str) -> Option<Direction> {
 
 impl Script {
     pub fn read(script_path: String) -> Self {
+        let mut is_repeating = false;
         let mut trigger: Option<Trigger> = None;
         let mut actions: Vec<Action> = Vec::new();
 
@@ -255,6 +257,11 @@ impl Script {
                         )),
                         _ => panic!("Could not parse action type. Line {line_number}"),
                     });
+
+                    is_repeating = match words.next().unwrap_or("").to_lowercase().as_str() {
+                        "repeating" | "repeat" | "r" => true,
+                        _ => false,
+                    };
                 }
                 "event" => {
                     let mut action_string = words
@@ -323,6 +330,7 @@ impl Script {
         }
 
         Self {
+            is_repeating,
             trigger: trigger.unwrap(),
             actions,
         }

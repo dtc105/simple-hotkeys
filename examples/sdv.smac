@@ -1,4 +1,4 @@
-on mouse:5
+on mouse:5 repeat
 
 event mouse:1 down
 sleep 10

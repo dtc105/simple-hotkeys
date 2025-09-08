@@ -12,27 +12,28 @@ use input::{
     },
 };
 
-enum RunnerState {
-    Running,
-    Idle,
-}
-
 pub struct Runner {
-    state: RunnerState,
     input: Libinput,
     script: Script,
 }
 
-fn is_trigger(trigger: &Trigger, event: &Event) -> bool {
+fn is_trigger(trigger: &Trigger, event: &Event) -> Option<bool> {
     match (trigger, event) {
         (Trigger::Key(trigger_code), Event::Keyboard(event)) => {
-            matches!(event.key_state(), KeyState::Pressed) && &event.key() == trigger_code
+            if &event.key() != trigger_code {
+                return None;
+            }
+
+            Some(matches!(event.key_state(), KeyState::Pressed))
         }
         (Trigger::Mouse(trigger_code), Event::Pointer(PointerEvent::Button(button))) => {
-            matches!(&button.button_state(), ButtonState::Pressed)
-                && &(button.button() - 271) == trigger_code
+            if &(button.button() - 271) != trigger_code {
+                return None;
+            }
+
+            Some(matches!(&button.button_state(), ButtonState::Pressed))
         }
-        _ => false,
+        _ => None,
     }
 }
 
@@ -49,11 +50,7 @@ fn button_from_u16(x: u16) -> Option<Button> {
 
 impl Runner {
     pub fn new(input: Libinput, script: Script) -> Self {
-        Self {
-            state: RunnerState::Idle,
-            input,
-            script,
-        }
+        Self { input, script }
     }
 
     pub fn run(&mut self) {
@@ -70,18 +67,23 @@ impl Runner {
         };
 
         let mut enigo = Enigo::new(&settings).expect("Could not initialize enigo.");
+        let mut trigger_down: bool = false;
 
-        loop {
-            self.input.dispatch().unwrap();
-            for event in &mut self.input {
-                if is_trigger(&self.script.trigger, &event)
-                    && matches!(self.state, RunnerState::Idle)
-                {
-                    println!("Trigger received!");
-                    self.state = RunnerState::Running;
+        if self.script.is_repeating {
+            loop {
+                self.input.dispatch().unwrap();
 
+                for event in &mut self.input {
+                    if let Some(is_pressed) = is_trigger(&self.script.trigger, &event) {
+                        if trigger_down ^ is_pressed {
+                            trigger_down = is_pressed;
+                            break;
+                        }
+                    }
+                }
+
+                if trigger_down {
                     for action in &self.script.actions {
-                        println!("Action: {:?}", action);
                         std::thread::sleep(Duration::from_millis(10));
                         match action {
                             Action::KeyEvent { key, direction } => enigo
@@ -95,8 +97,28 @@ impl Runner {
                             }
                         };
                     }
-
-                    self.state = RunnerState::Idle;
+                }
+            }
+        } else {
+            loop {
+                self.input.dispatch().unwrap();
+                for event in &mut self.input {
+                    if is_trigger(&self.script.trigger, &event).unwrap_or(false) {
+                        for action in &self.script.actions {
+                            std::thread::sleep(Duration::from_millis(10));
+                            match action {
+                                Action::KeyEvent { key, direction } => enigo
+                                    .key(*key, *direction)
+                                    .expect("Could not send key event."),
+                                Action::MouseEvent { code, direction } => enigo
+                                    .button(button_from_u16(*code).unwrap(), *direction)
+                                    .expect("Could not send mouse event."),
+                                Action::Sleep(duration) => {
+                                    std::thread::sleep(Duration::from_millis(*duration));
+                                }
+                            };
+                        }
+                    }
                 }
             }
         }
