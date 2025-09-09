@@ -73,7 +73,7 @@ fn button_from_u16(x: u16) -> Option<Button> {
         2 => Some(Button::Right),
         3 => Some(Button::Middle),
         4 => Some(Button::Back),
-        5 => Some(Button::Right),
+        5 => Some(Button::Forward),
         _ => None,
     }
 }
