@@ -2,6 +2,13 @@
 name = "simple-hotkeys"
 version = "0.1.1"
 edition = "2024"
+description = "AutoHotkeys for Arch Hyprland"
+readme = "README.md"
+repository = "https://github.com/dtc105/simple-hotkeys"
+license-file = "LICENSE"
+keywords = ["hotkey", "autohotkey", "arch", "hyprland"]
+categories = ["accessibility", "games"]
+include = ["/src", "/examples"]
 
 [dependencies]
 enigo = "0.6.1"
