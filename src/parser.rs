@@ -20,18 +20,18 @@ pub struct Script {
 
 fn parse_trigger_key_string(key_str: &str) -> Option<u16> {
     match key_str.to_lowercase().as_str() {
-        "lshift" | "leftshift" => Some(42),  // KEY_LEFTSHIFT
-        "rshift" | "rightshift" => Some(54), // KEY_RIGHTSHIFT
-        "lctrl" | "leftctrl" => Some(29),    // KEY_LEFTCTRL
-        "rctrl" | "rightctrl" => Some(97),   // KEY_RIGHTCTRL
-        "lalt" | "leftalt" => Some(56),      // KEY_LEFTALT
-        "ralt" | "rightalt" => Some(100),    // KEY_RIGHTALT
+        "leftshift" | "lshift" => Some(42),  // KEY_LEFTSHIFT
+        "rightshift" | "rshift" => Some(54), // KEY_RIGHTSHIFT
+        "leftcontrol" | "lcontrol" | "leftctrl" | "lctrl" => Some(29), // KEY_LEFTCTRL
+        "rightctrl" | "rctrl" => Some(97),   // KEY_RIGHTCTRL
+        "leftalt" | "lalt" => Some(56),      // KEY_LEFTALT
+        "rightalt" | "ralt" => Some(100),    // KEY_RIGHTALT
         "tab" => Some(15),                   // KEY_TAB
         "enter" => Some(28),                 // KEY_ENTER
         "space" => Some(57),                 // KEY_SPACE
-        "esc" | "escape" => Some(1),         // KEY_ESC
+        "escape" | "esc" => Some(1),         // KEY_ESC
         "backspace" => Some(14),             // KEY_BACKSPACE
-        "del" | "delete" => Some(46),        // KEY_DELETE
+        "delete" | "del" => Some(46),        // KEY_DELETE
         "a" => Some(30),                     // KEY_A
         "b" => Some(48),                     // KEY_B
         "c" => Some(46),                     // KEY_C
@@ -97,8 +97,8 @@ fn parse_action_key_string(key_str: &str) -> Option<Key> {
         "begin" => Some(Key::Begin),
         "cancel" => Some(Key::Cancel),
         "capslock" => Some(Key::CapsLock),
-        "clear" => Some(Key::Clear),
-        "command" | "cmd" | "super" | "windows" | "win" => Some(Key::Meta),
+        "clear" | "clr" => Some(Key::Clear),
+        "command" | "cmd" | "super" | "windows" | "win" | "meta" => Some(Key::Meta),
         "control" | "ctrl" => Some(Key::Control),
         "decimal" => Some(Key::Decimal),
         "delete" | "del" => Some(Key::Delete),
@@ -106,7 +106,7 @@ fn parse_action_key_string(key_str: &str) -> Option<Key> {
         "downarrow" | "down" => Some(Key::DownArrow),
         "end" => Some(Key::End),
         "escape" | "esc" => Some(Key::Escape),
-        "execute" => Some(Key::Execute),
+        "execute" | "exec" => Some(Key::Execute),
         "f1" => Some(Key::F1),
         "f2" => Some(Key::F2),
         "f3" => Some(Key::F3),
@@ -149,51 +149,50 @@ fn parse_action_key_string(key_str: &str) -> Option<Key> {
         "home" => Some(Key::Home),
         "insert" | "ins" => Some(Key::Insert),
         "kanji" => Some(Key::Kanji),
-        "lcontrol" => Some(Key::LControl),
+        "leftcontrol" | "lcontrol" | "leftctrl" | "lctrl" => Some(Key::LControl),
         "leftarrow" | "left" => Some(Key::LeftArrow),
         "linefeed" => Some(Key::Linefeed),
-        "lmenu" => Some(Key::LMenu),
-        "lshift" => Some(Key::LShift),
+        "leftmenu" | "lmenu" => Some(Key::LMenu),
+        "leftshift" | "lshift" => Some(Key::LShift),
         "medianexttrack" | "nexttrack" | "next" => Some(Key::MediaNextTrack),
         "mediaplaypause" | "playpause" | "play" => Some(Key::MediaPlayPause),
         "mediaprevtrack" | "prevtrack" | "prev" => Some(Key::MediaPrevTrack),
         "mediastop" | "stop" => Some(Key::MediaStop),
-        "meta" => Some(Key::Meta),
         "modechange" => Some(Key::ModeChange),
-        "multiply" => Some(Key::Multiply),
+        "multiply" | "mult" | "mul" | "times" => Some(Key::Multiply),
         "numlock" => Some(Key::Numlock),
-        "numpad0" => Some(Key::Numpad0),
-        "numpad1" => Some(Key::Numpad1),
-        "numpad2" => Some(Key::Numpad2),
-        "numpad3" => Some(Key::Numpad3),
-        "numpad4" => Some(Key::Numpad4),
-        "numpad5" => Some(Key::Numpad5),
-        "numpad6" => Some(Key::Numpad6),
-        "numpad7" => Some(Key::Numpad7),
-        "numpad8" => Some(Key::Numpad8),
-        "numpad9" => Some(Key::Numpad9),
+        "numpad0" | "num0" => Some(Key::Numpad0),
+        "numpad1" | "num1" => Some(Key::Numpad1),
+        "numpad2" | "num2" => Some(Key::Numpad2),
+        "numpad3" | "num3" => Some(Key::Numpad3),
+        "numpad4" | "num4" => Some(Key::Numpad4),
+        "numpad5" | "num5" => Some(Key::Numpad5),
+        "numpad6" | "num6" => Some(Key::Numpad6),
+        "numpad7" | "num7" => Some(Key::Numpad7),
+        "numpad8" | "num8" => Some(Key::Numpad8),
+        "numpad9" | "num9" => Some(Key::Numpad9),
         "option" => Some(Key::Option),
         "pagedown" | "pgdn" => Some(Key::PageDown),
         "pageup" | "pgup" => Some(Key::PageUp),
         "pause" => Some(Key::Pause),
         "printscr" | "prtsc" | "printscreen" | "print" => Some(Key::PrintScr),
-        "rcontrol" => Some(Key::RControl),
+        "rightcontrol" | "rcontrol" | "rightctrl" | "rctrl" => Some(Key::RControl),
         "redo" => Some(Key::Redo),
-        "return" | "enter" => Some(Key::Return),
+        "return" | "ret" | "enter" => Some(Key::Return),
         "rightarrow" | "right" => Some(Key::RightArrow),
-        "rshift" => Some(Key::RShift),
+        "rightshift" | "rshift" => Some(Key::RShift),
         "scrolllock" => Some(Key::ScrollLock),
-        "select" => Some(Key::Select),
+        "select" | "sel" => Some(Key::Select),
         "scriptswitch" => Some(Key::ScriptSwitch),
         "shift" => Some(Key::Shift),
         "shiftlock" => Some(Key::ShiftLock),
         "space" => Some(Key::Space),
-        "subtract" => Some(Key::Subtract),
+        "subtract" | "sub" | "minus" => Some(Key::Subtract),
         "sysreq" => Some(Key::SysReq),
         "tab" => Some(Key::Tab),
         "undo" => Some(Key::Undo),
         "uparrow" | "up" => Some(Key::UpArrow),
-        "volumedown" | "voldown" => Some(Key::VolumeDown),
+        "volumedown" | "voldown" | "voldn" => Some(Key::VolumeDown),
         "volumemute" | "mute" => Some(Key::VolumeMute),
         "volumeup" | "volup" => Some(Key::VolumeUp),
         "micmute" => Some(Key::MicMute),
@@ -203,9 +202,9 @@ fn parse_action_key_string(key_str: &str) -> Option<Key> {
 
 fn parse_direction(dir_str: &str) -> Option<Direction> {
     match dir_str.to_lowercase().as_str() {
-        "d" | "down" | "p" | "press" => Some(Direction::Press),
-        "u" | "up" | "r" | "release" => Some(Direction::Release),
-        "c" | "click" => Some(Direction::Click),
+        "down" | "d" | "press" | "p" => Some(Direction::Press),
+        "up" | "u" | "release" | "r" => Some(Direction::Release),
+        "click" | "c" => Some(Direction::Click),
         _ => None,
     }
 }
@@ -325,23 +324,10 @@ impl Script {
             }
         }
 
-        if trigger.is_none() {
-            panic!("No trigger set.");
-        }
-
         Self {
             is_repeating,
-            trigger: trigger.unwrap(),
+            trigger: trigger.expect("No trigger set."),
             actions,
         }
-    }
-}
-
-impl IntoIterator for Script {
-    type Item = Action;
-    type IntoIter = std::vec::IntoIter<Action>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.actions.into_iter()
     }
 }
