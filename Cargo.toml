@@ -1,6 +1,6 @@
 [package]
 name = "simple-hotkeys"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 description = "AutoHotkeys for Hyprland"
 readme = "README.md"
