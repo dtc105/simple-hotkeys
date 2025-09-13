@@ -18,17 +18,6 @@ use std::path::Path;
 
 use libc::{O_RDONLY, O_RDWR, O_WRONLY};
 
-#[derive(Default)]
-pub struct Options {
-    debug: bool,
-}
-
-pub struct Runner {
-    input: Option<Libinput>,
-    script: Script,
-    options: Options,
-}
-
 struct Interface;
 
 impl LibinputInterface for Interface {
@@ -78,10 +67,20 @@ fn button_from_u16(x: u16) -> Option<Button> {
     }
 }
 
+#[derive(Default)]
+pub struct RunnerOptions {
+    debug: bool,
+}
+
+pub struct Runner {
+    script: Script,
+    options: RunnerOptions,
+}
+
 impl Runner {
     pub fn new() -> Self {
         let mut script_path: Option<String> = None;
-        let mut options = Options::default();
+        let mut options = RunnerOptions::default();
         let mut args = std::env::args().skip(1);
 
         while let Some(arg) = args.next() {
@@ -103,14 +102,7 @@ impl Runner {
 
         let script = Script::read(script_path.expect("No script path set."));
 
-        let mut input = Libinput::new_with_udev(Interface);
-        input.udev_assign_seat("seat0").unwrap();
-
-        Self {
-            input: Some(input),
-            script,
-            options,
-        }
+        Self { script, options }
     }
 
     fn execute_actions(&self, enigo: &mut Enigo) {
@@ -150,10 +142,12 @@ impl Runner {
         };
 
         let mut enigo = Enigo::new(&settings).expect("Could not initialize enigo.");
-        let mut trigger_down: bool = false;
-        let mut input = std::mem::take(&mut self.input).unwrap();
+        let mut input = Libinput::new_with_udev(Interface);
+        input.udev_assign_seat("seat0").unwrap();
 
         if self.script.is_repeating {
+            let mut trigger_down: bool = false;
+
             loop {
                 input.dispatch().unwrap();
 
@@ -167,7 +161,6 @@ impl Runner {
                 }
 
                 if trigger_down {
-                    std::thread::sleep(Duration::from_millis(10));
                     self.execute_actions(&mut enigo);
                 }
             }
@@ -176,7 +169,6 @@ impl Runner {
                 input.dispatch().unwrap();
                 for event in &mut input {
                     if is_trigger(&self.script.trigger, &event).unwrap_or(false) {
-                        std::thread::sleep(Duration::from_millis(10));
                         self.execute_actions(&mut enigo);
                         break;
                     }

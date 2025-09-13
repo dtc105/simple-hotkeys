@@ -2,11 +2,11 @@
 name = "simple-hotkeys"
 version = "0.1.1"
 edition = "2024"
-description = "AutoHotkeys for Arch Hyprland"
+description = "AutoHotkeys for Hyprland"
 readme = "README.md"
 repository = "https://github.com/dtc105/simple-hotkeys"
 license-file = "LICENSE"
-keywords = ["hotkey", "autohotkey", "arch", "hyprland"]
+keywords = ["hotkey", "autohotkey", "hyprland"]
 categories = ["accessibility", "games"]
 include = ["/src", "/examples"]
 

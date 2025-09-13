@@ -1,7 +1,6 @@
-
 # Simple Hotkeys
 
-A bare bones copy of [AutoHotkey](https://www.autohotkey.com/) for Arch Linux, Hyprland.
+A bare bones copy of [AutoHotkey](https://www.autohotkey.com/) for Hyprland.
 
 
 ## Installation
@@ -16,8 +15,6 @@ Install simple-hotkeys with cargo, make sure ~/.cargo/bin is in the path and you
 ```
     
 ## Usage
-
-
 
 ```bash
 Usage: simple-hotkeys [OPTIONS]... FILE_PATH
@@ -75,9 +72,9 @@ This script waits until mouse 1 is pressed and will then wait a second before pr
 
 ## Codes
 
-<a id="key-codes></a>
+<a id="key-codes"></a>
 ### Key Codes
-The list of events is less complete than the trigger codes.  Keys that are unsupported for the eventa will be marked with an *.  There may (are) some inconsistencies with this list to the actual values, for the true list see `src/parser.rs` and look for the `parse_xxx_key_string` functions.  All patterns are case insensitive. (Don't ask me what half of these are)
+The list of events is less complete than the trigger codes.  Keys that are unsupported for the events will be marked with an *.  There may (are) some inconsistencies with this list to the actual values, for the true list see `src/parser.rs` and look for the `parse_xxx_key_string` functions.  All patterns are case insensitive. (Don't ask me what half of these are)
 
 | Key Name | Patterns | Code |
 |----------|----------|------|
@@ -252,14 +249,14 @@ For the mouse codes the only option is to put the number corresponding to the bu
 | -------- | ---- |
 | Left | 1 |
 | Right | 2 |
-| Middle | 3 | 
+| Middle | 3 |
 | Back | 4 |
 | Forward | 5 |
 
 
 ## Support
 
-This has only ever been tested on Arch Linux 6.16.5 with Hyprland as the DE.  If you have an issue running on your system then good luck.
+This has only ever been tested on Arch Linux 6.16.5+ with Hyprland.  If you have an issue running on your system then good luck.
 
 
 ## Contributing
