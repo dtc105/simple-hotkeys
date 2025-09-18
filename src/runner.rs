@@ -85,6 +85,7 @@ impl Runner {
 
         while let Some(arg) = args.next() {
             match arg.as_str() {
+                "-h" | "--help" => Runner::display_help(),
                 "-d" | "--debug" => options.debug = true,
                 arg => {
                     if arg.starts_with('-') {
@@ -103,6 +104,19 @@ impl Runner {
         let script = Script::read(script_path.expect("No script path set."));
 
         Self { script, options }
+    }
+
+    fn display_help() {
+        println!(
+            r#"Usage: simple-hotkeys [OPTIONS]... FILE_PATH
+Run a simple hotkey script
+
+Options:
+    -d, --debug         Turn on debug mode
+    -h, --help          Display this message"#
+        );
+
+        std::process::exit(0);
     }
 
     fn execute_actions(&self, enigo: &mut Enigo) {
