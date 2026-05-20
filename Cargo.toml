@@ -1,12 +1,12 @@
 [package]
 name = "simple-hotkeys"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
-description = "AutoHotkeys for Hyprland"
+description = "AutoHotkeys for linux"
 readme = "README.md"
 repository = "https://github.com/dtc105/simple-hotkeys"
 license-file = "LICENSE"
-keywords = ["hotkey", "autohotkey", "hyprland"]
+keywords = ["hotkey", "autohotkey", "wayland", "x11"]
 categories = ["accessibility", "games"]
 include = ["/src", "/examples"]
 
