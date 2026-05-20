@@ -1,4 +1,7 @@
-use std::time::Duration;
+use std::{
+    thread::sleep,
+    time::{Duration, Instant},
+};
 
 use crate::parser::{Action, Script, Trigger};
 
@@ -67,6 +70,21 @@ fn button_from_u16(x: u16) -> Option<Button> {
     }
 }
 
+fn safe_sleep(duration: u64) {
+    let end = Instant::now() + Duration::from_millis(duration);
+
+    loop {
+        let now = Instant::now();
+
+        if now >= end {
+            break;
+        }
+
+        let remaining = end - now;
+        sleep(Duration::from_millis(50).min(remaining));
+    }
+}
+
 pub struct Runner {
     script: Script,
 }
@@ -118,7 +136,6 @@ Options:
         log::debug!("Trigger received!");
 
         for action in &self.script.actions {
-            std::thread::sleep(Duration::from_millis(10));
             log::debug!("Action: {:?}", action);
             match action {
                 Action::KeyEvent { key, direction } => enigo
@@ -128,17 +145,14 @@ Options:
                     .button(button_from_u16(*code).unwrap_or(Button::Left), *direction)
                     .expect("Could not send mouse event."),
                 Action::Sleep(duration) => {
-                    std::thread::sleep(Duration::from_millis(*duration));
+                    safe_sleep(*duration);
                 }
             };
         }
     }
 
     pub fn run(&mut self) {
-        let mut settings = Settings::default();
-        settings.linux_delay = 10;
-
-        let mut enigo = Enigo::new(&settings).expect("Could not initialize enigo.");
+        let mut enigo = Enigo::new(&Settings::default()).expect("Could not initialize enigo.");
         let mut input = Libinput::new_with_udev(Interface);
         input
             .udev_assign_seat("seat0")
