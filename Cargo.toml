@@ -12,5 +12,7 @@ include = ["/src", "/examples"]
 
 [dependencies]
 enigo = "0.6.1"
+env_logger = "0.11.10"
 input = "0.9.1"
 libc = "0.2.175"
+log = "0.4.29"

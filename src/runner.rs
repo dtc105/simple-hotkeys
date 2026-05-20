@@ -67,26 +67,21 @@ fn button_from_u16(x: u16) -> Option<Button> {
     }
 }
 
-#[derive(Default)]
-pub struct RunnerOptions {
-    debug: bool,
-}
-
 pub struct Runner {
     script: Script,
-    options: RunnerOptions,
 }
 
 impl Runner {
     pub fn new() -> Self {
         let mut script_path: Option<String> = None;
-        let mut options = RunnerOptions::default();
         let mut args = std::env::args().skip(1);
 
         while let Some(arg) = args.next() {
             match arg.as_str() {
                 "-h" | "--help" => Runner::display_help(),
-                "-d" | "--debug" => options.debug = true,
+                "-d" | "--debug" => unsafe {
+                    std::env::set_var("RUST_LOG", "debug");
+                },
                 arg => {
                     if arg.starts_with('-') {
                         panic!("Unknown argument: {arg}");
@@ -103,7 +98,7 @@ impl Runner {
 
         let script = Script::read(script_path.expect("No script path set."));
 
-        Self { script, options }
+        Self { script }
     }
 
     fn display_help() {
@@ -120,15 +115,11 @@ Options:
     }
 
     fn execute_actions(&self, enigo: &mut Enigo) {
-        if self.options.debug {
-            println!("Trigger received!");
-        }
+        log::debug!("Trigger received!");
 
         for action in &self.script.actions {
             std::thread::sleep(Duration::from_millis(10));
-            if self.options.debug {
-                println!("Action: {:?}", action);
-            }
+            log::debug!("Action: {:?}", action);
             match action {
                 Action::KeyEvent { key, direction } => enigo
                     .key(*key, *direction)
