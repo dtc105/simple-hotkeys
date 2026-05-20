@@ -1,6 +1,6 @@
 # Simple Hotkeys
 
-A bare bones copy of [AutoHotkey](https://www.autohotkey.com/) for Hyprland.
+A bare bones copy of [AutoHotkey](https://www.autohotkey.com/) for Linux.
 
 
 ## Installation
@@ -253,14 +253,6 @@ For the mouse codes the only option is to put the number corresponding to the bu
 | Back | 4 |
 | Forward | 5 |
 
-
-## Support
-
-This has only ever been tested on Arch Linux 6.16.5+ with Hyprland.  If you have an issue running on your system then good luck.
-
-
 ## Contributing
 
 If you want to contribute please open a pull request or issue.
-
-
