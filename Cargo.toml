@@ -11,8 +11,20 @@ categories = ["accessibility", "games"]
 include = ["/src", "/examples"]
 
 [dependencies]
-enigo = { version = "0.6.1", features = ["wayland"] }
+enigo = { version = "0.6.1", default-features = false }
 env_logger = "0.11.10"
 input = "0.9.1"
 libc = "0.2.175"
 log = "0.4.29"
+
+[features]
+x11 = ["enigo/x11rb"]
+wayland = ["enigo/wayland"]
+
+[profile.small]
+inherits = "release"
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
+panic = "abort"
