@@ -104,11 +104,8 @@ impl Runner {
                     if arg.starts_with('-') {
                         panic!("Unknown argument: {arg}");
                     } else {
-                        if let Some(path) = script_path {
-                            panic!("Script path already set as '{}'", path);
-                        } else {
-                            script_path = Some(arg.to_string());
-                        }
+                        script_path = Some(arg.to_string());
+                        break;
                     }
                 }
             }
