@@ -188,11 +188,14 @@ fn parse_trigger_key_string(key_str: &str) -> Option<u16> {
 }
 
 fn parse_action_key_string(key_str: &str) -> Option<Key> {
-    if key_str.len() == 1 {
-        return Some(Key::Unicode(key_str.to_lowercase().chars().next().unwrap()));
+    let key_str = key_str.trim().to_lowercase();
+
+    let mut iter = key_str.chars();
+    if let (Some(unicode), None) = (iter.next(), iter.next()) {
+        return Some(Key::Unicode(unicode));
     }
 
-    match key_str.to_lowercase().as_str() {
+    match key_str.as_str() {
         "add" => Some(Key::Add),
         "alt" => Some(Key::Alt),
         "backspace" => Some(Key::Backspace),
@@ -320,13 +323,14 @@ impl Script {
 
         let file = std::fs::read_to_string(&script_path)
             .expect(format!("File not found: {}", script_path).as_str());
-        let lines = file.lines().map(String::from).into_iter();
+        let lines = file
+            .lines()
+            .map(str::trim)
+            .map(str::to_lowercase)
+            .into_iter();
 
-        let mut line_number = 0;
-
-        for line in lines {
-            line_number += 1;
-
+        for (line_number, line) in lines.enumerate() {
+            let line_number = line_number + 1;
             if line.len() == 0 || line.starts_with('#') {
                 continue;
             }
@@ -334,33 +338,36 @@ impl Script {
             let mut words = line.split_whitespace();
             let operation = words
                 .next()
-                .expect(format!("No operation on line: {line_number}").as_str());
+                .expect(&format!("No operation on line: {line_number}"));
 
-            match operation.to_lowercase().as_str() {
+            match operation {
                 "on" => {
                     let mut action_string = words
                         .next()
-                        .expect(format!("No trigger passed. Line {line_number}").as_str())
+                        .expect(&format!("No trigger passed. Line {line_number}"))
                         .split(':');
 
                     let action_type = action_string
                         .next()
-                        .expect(format!("No action type passed. Line {line_number}").as_str());
+                        .expect(&format!("No action type passed. Line {line_number}"));
                     let action_value = action_string
                         .next()
-                        .expect(format!("No action value passed. Line {line_number}").as_str());
+                        .expect(&format!("No action value passed. Line {line_number}"));
 
-                    trigger = Some(match action_type.to_lowercase().as_str() {
-                        "key" | "k" => Trigger::Key(parse_trigger_key_string(action_value).expect(
-                            format!("Could not parse action value. Line {line_number}").as_str(),
-                        ) as u32),
-                        "mouse" | "m" => Trigger::Mouse(action_value.parse::<u32>().expect(
-                            format!("Could not parse action value. Line {line_number}").as_str(),
-                        )),
-                        _ => panic!("Could not parse action type. Line {line_number}"),
-                    });
+                    trigger =
+                        Some(match action_type {
+                            "key" | "k" => {
+                                Trigger::Key(parse_trigger_key_string(action_value).expect(
+                                    &format!("Could not parse action value. Line {line_number}"),
+                                ) as u32)
+                            }
+                            "mouse" | "m" => Trigger::Mouse(action_value.parse::<u32>().expect(
+                                &format!("Could not parse action value. Line {line_number}"),
+                            )),
+                            _ => panic!("Could not parse action type. Line {line_number}"),
+                        });
 
-                    is_repeating = match words.next().unwrap_or("").to_lowercase().as_str() {
+                    is_repeating = match words.next().unwrap_or("") {
                         "repeating" | "repeat" | "r" => true,
                         _ => false,
                     };
@@ -368,41 +375,47 @@ impl Script {
                 "event" => {
                     let mut action_string = words
                         .next()
-                        .expect(format!("No trigger passed. Line {line_number}").as_str())
+                        .expect(&format!("No trigger passed. Line {line_number}"))
                         .split(':');
 
                     let action_type = action_string
                         .next()
-                        .expect(format!("No action type passed. Line {line_number}").as_str());
+                        .expect(&format!("No action type passed. Line {line_number}"));
                     let action_value = action_string
                         .next()
-                        .expect(format!("No action value passed. Line {line_number}").as_str());
-                    let action_direction = words.next().unwrap_or("click");
+                        .expect(&format!("No action value passed. Line {line_number}"));
+                    let action_direction = words.next();
 
                     match action_type.to_lowercase().as_str() {
                         "key" | "k" => {
-                            let key = parse_action_key_string(action_value).expect(
-                                format!("Could not parse action value. Line {line_number}")
-                                    .as_str(),
-                            );
+                            let key = parse_action_key_string(action_value).expect(&format!(
+                                "Could not parse action value. Line {line_number}"
+                            ));
 
-                            let direction = parse_direction(action_direction).expect(
-                                format!("Could not parse direction. Line {line_number}").as_str(),
-                            );
+                            let direction = action_direction
+                                .map(|ad| {
+                                    parse_direction(ad).expect(&format!(
+                                        "Could not parse direction. Line {line_number}"
+                                    ))
+                                })
+                                .unwrap_or(Direction::Click);
 
                             let action = Action::KeyEvent { key, direction };
 
                             actions.push(action);
                         }
                         "mouse" | "m" => {
-                            let code = action_value.parse::<u16>().expect(
-                                format!("Could not parse action value: Line {line_number}")
-                                    .as_str(),
-                            );
+                            let code = action_value.parse::<u16>().expect(&format!(
+                                "Could not parse action value: Line {line_number}"
+                            ));
 
-                            let direction = parse_direction(action_direction).expect(
-                                format!("Could not parse direction. Line {line_number}").as_str(),
-                            );
+                            let direction = action_direction
+                                .map(|ad| {
+                                    parse_direction(ad).expect(&format!(
+                                        "Could not parse direction. Line {line_number}"
+                                    ))
+                                })
+                                .unwrap_or(Direction::Click);
 
                             let action = Action::MouseEvent { code, direction };
 

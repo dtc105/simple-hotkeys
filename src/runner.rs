@@ -28,7 +28,7 @@ impl LibinputInterface for Interface {
             .write((flags & O_WRONLY != 0) | (flags & O_RDWR != 0))
             .open(path)
             .map(|file| file.into())
-            .map_err(|err| err.raw_os_error().unwrap())
+            .map_err(|err| err.raw_os_error().unwrap_or(-1))
     }
 
     fn close_restricted(&mut self, fd: OwnedFd) {
@@ -91,10 +91,10 @@ impl Runner {
                     if arg.starts_with('-') {
                         panic!("Unknown argument: {arg}");
                     } else {
-                        if script_path.is_none() {
-                            script_path = Some(arg.to_string());
+                        if let Some(path) = script_path {
+                            panic!("Script path already set as '{}'", path);
                         } else {
-                            panic!("Script path already set as '{}'", script_path.unwrap());
+                            script_path = Some(arg.to_string());
                         }
                     }
                 }
@@ -134,7 +134,7 @@ Options:
                     .key(*key, *direction)
                     .expect("Could not send key event."),
                 Action::MouseEvent { code, direction } => enigo
-                    .button(button_from_u16(*code).unwrap(), *direction)
+                    .button(button_from_u16(*code).unwrap_or(Button::Left), *direction)
                     .expect("Could not send mouse event."),
                 Action::Sleep(duration) => {
                     std::thread::sleep(Duration::from_millis(*duration));
@@ -144,48 +144,42 @@ Options:
     }
 
     pub fn run(&mut self) {
-        let settings = Settings {
-            linux_delay: 10,
-            x11_display: None,     //Some(":0".to_string()),
-            wayland_display: None, //Some("wayland-1".to_string()),
-            windows_dw_extra_info: None,
-            event_source_user_data: None,
-            release_keys_when_dropped: true,
-            open_prompt_to_get_permissions: true,
-            independent_of_keyboard_state: true,
-            windows_subject_to_mouse_speed_and_acceleration_level: false,
-        };
+        let mut settings = Settings::default();
+        settings.linux_delay = 10;
 
         let mut enigo = Enigo::new(&settings).expect("Could not initialize enigo.");
         let mut input = Libinput::new_with_udev(Interface);
-        input.udev_assign_seat("seat0").unwrap();
+        input
+            .udev_assign_seat("seat0")
+            .expect("Could not connect to seat");
 
         if self.script.is_repeating {
             let mut trigger_down: bool = false;
 
             loop {
-                input.dispatch().unwrap();
-
-                for event in &mut input {
-                    if let Some(is_pressed) = is_trigger(&self.script.trigger, &event) {
-                        if trigger_down ^ is_pressed {
-                            trigger_down = is_pressed;
-                            break;
+                if input.dispatch().is_ok() {
+                    for event in &mut input {
+                        if let Some(is_pressed) = is_trigger(&self.script.trigger, &event) {
+                            if trigger_down ^ is_pressed {
+                                trigger_down = is_pressed;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if trigger_down {
-                    self.execute_actions(&mut enigo);
+                    if trigger_down {
+                        self.execute_actions(&mut enigo);
+                    }
                 }
             }
         } else {
             loop {
-                input.dispatch().unwrap();
-                for event in &mut input {
-                    if is_trigger(&self.script.trigger, &event).unwrap_or(false) {
-                        self.execute_actions(&mut enigo);
-                        break;
+                if input.dispatch().is_ok() {
+                    for event in &mut input {
+                        if is_trigger(&self.script.trigger, &event).unwrap_or(false) {
+                            self.execute_actions(&mut enigo);
+                            break;
+                        }
                     }
                 }
             }
